@@ -7,6 +7,7 @@
 FROM ubuntu:20.04
 
 ARG QEMU_VERSION=7.0.0
+ARG GDB_VERSION=14.1
 ARG HOME=/root
 
 # 0. Install general tools
@@ -29,13 +30,18 @@ WORKDIR ${HOME}
 RUN wget https://download.qemu.org/qemu-${QEMU_VERSION}.tar.xz && \
     tar xvJf qemu-${QEMU_VERSION}.tar.xz
 
+RUN wget https://ftp.gnu.org/gnu/gdb/gdb-${GDB_VERSION}.tar.xz && \
+    tar xvJf gdb-${GDB_VERSION}.tar.xz
+
 # 1.2. Install dependencies
 # - https://risc-v-getting-started-guide.readthedocs.io/en/latest/linux-qemu.html#prerequisites
 RUN apt-get install -y \
     autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev \
     gawk build-essential bison flex texinfo gperf libtool patchutils bc \
     zlib1g-dev libexpat-dev git \
-    ninja-build pkg-config libglib2.0-dev libpixman-1-dev libsdl2-dev
+    ninja-build pkg-config libglib2.0-dev libpixman-1-dev libsdl2-dev \
+    libncurses5-dev python2 python2-dev libreadline-dev
+
 
 # 1.3. Build and install from source
 WORKDIR ${HOME}/qemu-${QEMU_VERSION}
@@ -43,9 +49,14 @@ RUN ./configure --target-list=riscv64-softmmu,riscv64-linux-user && \
     make -j$(nproc) && \
     make install
 
+WORKDIR ${HOME}/gdb-${GDB_VERSION}
+RUN ./configure --prefix=/usr/local --target=riscv64-unknown-elf --enable-tui=yes && \
+    make -j$(nproc) && \
+    make install
+
 # 1.4. Clean up
 WORKDIR ${HOME}
-RUN rm -rf qemu-${QEMU_VERSION} qemu-${QEMU_VERSION}.tar.xz
+RUN rm -rf qemu-${QEMU_VERSION} qemu-${QEMU_VERSION}.tar.xz ${HOME}/gdb-${GDB_VERSION} gdb-${GDB_VERSION}.tar.xz
 
 # 1.5. Sanity checking
 RUN qemu-system-riscv64 --version && \
