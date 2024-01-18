@@ -5,9 +5,11 @@
     "context": ".",
     "args": {
       "QEMU_VERSION": "7.0.0",
-      "DEBIAN_FRONTEND": "noninteractive"
+      "DEBIAN_FRONTEND": "noninteractive",
+      "GDB_VERSION": "14.1"
     }
   },
+  "postCreateCommand": "rustup show",
   "customizations": {
     "vscode": {
       "extensions": [

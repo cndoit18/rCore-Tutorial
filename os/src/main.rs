@@ -30,7 +30,14 @@ pub fn rust_main() -> ! {
     clear_bss();
     logging::init();
 
-    println!("[kernel] Hello, world!");
+    println!(r"
+        _____                  
+       / ____|                 
+ _ __ | |      ___   _ __  ___ 
+| '__|| |     / _ \ | '__|/ _ \
+| |   | |____| (_) || |  |  __/
+|_|    \_____|\___/ |_|   \___|
+");
     info!(
         "[kernel] .text [{:#x}, {:#x})",
         stext as usize, etext as usize
